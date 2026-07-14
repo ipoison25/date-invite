@@ -443,18 +443,34 @@
   const music = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicBtn');
   let musicPlaying = false;
+
+  function startMusic(){
+    if(musicPlaying) return;
+    music.play().then(()=>{
+      musicPlaying = true;
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🔊';
+    }).catch(()=>{ /* browser blocked it, will retry on next interaction */ });
+  }
+
   function toggleMusic(){
     if(musicPlaying){
       music.pause();
       musicBtn.classList.remove('playing');
       musicBtn.textContent = '🎵';
+      musicPlaying = false;
     } else {
-      music.play().catch(()=>{ /* file may be missing until you add song.mp3 */ });
-      musicBtn.classList.add('playing');
-      musicBtn.textContent = '🔊';
+      startMusic();
     }
-    musicPlaying = !musicPlaying;
   }
+
+  // try to play immediately when the page loads
+  startMusic();
+  // browsers block real autoplay with sound, so as a fallback start the
+  // moment she taps/clicks anywhere on the page for the first time
+  ['click','touchstart'].forEach(evt=>{
+    document.addEventListener(evt, startMusic, { once:true });
+  });
 
   // ---- Food validation ----
   const blockedFoods = ['ياباني/سوشي', 'مأكولات بحرية'];
